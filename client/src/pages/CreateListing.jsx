@@ -7,15 +7,14 @@ import {
 } from 'firebase/storage';
 import { app } from '../firebase';
 import { useSelector } from 'react-redux';
-
+import { FaRupeeSign } from 'react-icons/fa'; // Import rupee sign icon
 import { useNavigate } from 'react-router-dom';
 
 export default function CreateListing() {
   const { currentUser } = useSelector((state) => state.user);
-  const navigate = useNavigate();//initialization
+  const navigate = useNavigate();
   const [files, setFiles] = useState([]);
 
-  //creating state for all the form data fields
   const [formData, setFormData] = useState({
     imageUrls: [],
     name: '',
@@ -24,8 +23,8 @@ export default function CreateListing() {
     type: 'rent',
     bedrooms: 1,
     bathrooms: 1,
-    halls:1,
-    kitchens:1,
+    halls: 1,
+    kitchens: 1,
     regularPrice: 50,
     discountPrice: 0,
     offer: false,
@@ -36,68 +35,52 @@ export default function CreateListing() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  console.log(formData);
-  const handleImageSubmit = (e) => {
 
-    //maximum images we can upload is 6
+  const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
-      setUploading(true);//uploading state will be true
-      setImageUploadError(false);//If previous errors are there then it will remove those.
-      //we will be uploading more than one image, so we need to wait asynchronously for all of them.
-      //So, one by one images will be uploaded to the store & we will get them here.
-      //So, we will be returning more than one promise.
+      setUploading(true);
+      setImageUploadError(false);
       const promises = [];
-      
-      
       for (let i = 0; i < files.length; i++) {
         promises.push(storeImage(files[i]));
       }
-      
-      //all the downloaded urls are going to be stored in the promises
       Promise.all(promises)
         .then((urls) => {
           setFormData({
             ...formData,
-            //here we are adding new images(that are stored in the form of urls) to the previous ones.
             imageUrls: formData.imageUrls.concat(urls),
           });
           setImageUploadError(false);
-          setUploading(false);//when uploading is completed
+          setUploading(false);
         })
         .catch((err) => {
-          setImageUploadError('Image upload failed (2 mb max per image)');
+          setImageUploadError('Image upload failed (2 MB max per image)');
           setUploading(false);
         });
-    }
-    else if(files.length + formData.imageUrls.length==0){
-      setImageUploadError('You need to select atleast 1 img for upload');
-    }
-    else {
+    } else if (files.length + formData.imageUrls.length === 0) {
+      setImageUploadError('You need to select at least 1 image for upload');
+    } else {
       setImageUploadError('You can only upload 6 images per listing');
       setUploading(false);
     }
   };
 
-  //this func is async because we need to wait for response from storage
   const storeImage = async (file) => {
     return new Promise((resolve, reject) => {
-      //create the storage
       const storage = getStorage(app);
-      //we are making unique filename
       const fileName = new Date().getTime() + file.name;
       const storageRef = ref(storage, fileName);
       const uploadTask = uploadBytesResumable(storageRef, file);
       uploadTask.on(
         'state_changed',
         (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log(`Upload is ${progress}% done`);
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
         },
         (error) => {
           reject(error);
         },
-        () => {//if there is no error we wanted to get the URL
+        () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             resolve(downloadURL);
           });
@@ -106,18 +89,16 @@ export default function CreateListing() {
     });
   };
 
-//for removing img after uploading
   const handleRemoveImage = (index) => {
     setFormData({
-      ...formData,//after removing img urls it will be _ 
+      ...formData,
       imageUrls: formData.imageUrls.filter((_, i) => i !== index),
     });
   };
 
-
   const handleChange = (e) => {
     if (e.target.id === 'sale' || e.target.id === 'rent') {
-      setFormData({//if we check rent then type will be rent & if we check sell type will be sell
+      setFormData({
         ...formData,
         type: e.target.id,
       });
@@ -130,7 +111,6 @@ export default function CreateListing() {
     ) {
       setFormData({
         ...formData,
-        // e.target.checked can be true or false
         [e.target.id]: e.target.checked,
       });
     }
@@ -142,17 +122,16 @@ export default function CreateListing() {
     ) {
       setFormData({
         ...formData,
-        //e.target.id can be name, description. So, we have to set that to their value
         [e.target.id]: e.target.value,
       });
     }
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();//prevent refreshing the page
+    e.preventDefault();
     try {
       if (formData.imageUrls.length < 1)
-        return setError('You must upload atleast one image');
+        return setError('You must upload at least one image');
       if (+formData.regularPrice < +formData.discountPrice)
         return setError('Discount price must be lower than regular price');
       setLoading(true);
@@ -162,7 +141,6 @@ export default function CreateListing() {
         headers: {
           'Content-Type': 'application/json',
         },
-        //sending the body
         body: JSON.stringify({
           ...formData,
           userRef: currentUser._id,
@@ -173,21 +151,19 @@ export default function CreateListing() {
       if (data.success === false) {
         setError(data.message);
       }
-      //if everything is successful we are navigating to listing page.
-      //we have initialized navigate=useNavigate() hook on line 15
       navigate(`/listing/${data._id}`);
     } catch (error) {
       setError(error.message);
       setLoading(false);
     }
   };
+
   return (
     <main className='p-3 max-w-4xl mx-auto'>
       <h1 className='text-3xl font-semibold text-center my-7 text-blue-600'>
         Create a Listing
       </h1>
       <form onSubmit={handleSubmit} className='flex flex-col sm:flex-row gap-4'>
-        {/* flex is for bringing all the elements next to each other */}
         <div className='flex flex-col gap-4 flex-1'>
           <input
             type='text'
@@ -225,7 +201,6 @@ export default function CreateListing() {
                 id='sale'
                 className='w-5'
                 onChange={handleChange}
-                //inside the formdata if type if sell we are checking  
                 checked={formData.type === 'sale'}
               />
               <span>Sell</span>
@@ -338,7 +313,9 @@ export default function CreateListing() {
               <div className='flex flex-col items-center'>
                 <p>Regular price</p>
                 {formData.type === 'rent' && (
-                  <span className='text-xs'>($ / month)</span>
+                  <span className='text-xs'>
+                    (<FaRupeeSign /> / month)
+                  </span>
                 )}
               </div>
             </div>
@@ -356,70 +333,57 @@ export default function CreateListing() {
                 />
                 <div className='flex flex-col items-center'>
                   <p>Discounted price</p>
-
                   {formData.type === 'rent' && (
-                    <span className='text-xs'>($ / month)</span>
+                    <span className='text-xs'>
+                      (<FaRupeeSign /> / month)
+                    </span>
                   )}
                 </div>
               </div>
             )}
           </div>
         </div>
+
         <div className='flex flex-col flex-1 gap-4'>
-          <p className='font-semibold'>
-            Images:
-            <span className='font-normal text-gray-600 ml-2'>
-              The first image will be the cover (max 6)
-            </span>
-          </p>
-          <div className='flex gap-4'>
+          <div className='bg-gray-200 p-8 rounded-lg border border-gray-400'>
             <input
-              onChange={(e) => setFiles(e.target.files)}
-              className='p-3 border border-gray-300 rounded w-full'
               type='file'
-              id='images'
-              accept='image/*'// this will accept only images
               multiple
+              accept='.jpg,.png,.jpeg'
+              className='mb-3'
+              onChange={(e) => setFiles([...e.target.files])}
             />
             <button
               type='button'
-              //disable button while its uploading
-              disabled={uploading}
               onClick={handleImageSubmit}
-              className='p-3 text-white bg-green-600 border border-green-500 rounded uppercase hover:shadow-lg disabled:opacity-90'
+              disabled={uploading}
+              className='p-3 bg-gray-700 text-white w-full rounded-lg'
             >
-              {uploading ? 'Uploading...' : 'Upload'}
+              {uploading ? 'Uploading...' : 'Upload images'}
             </button>
           </div>
-          <p className='text-red-700 text-sm'>
-            {imageUploadError && imageUploadError}
-          </p>
-          {/* mapping through all the images for showing images in frontend*/}
-          {formData.imageUrls.length > 0 &&
-            formData.imageUrls.map((url, index) => (
-              <div
-                key={url}
-                className='flex justify-between p-3 border items-center border-red-200'
-              >
-                {/* we are creating img tag with url that we are getting  */}
+          <div className='flex flex-wrap gap-2'>
+            {formData.imageUrls.map((url, index) => (
+              <div key={index} className='relative w-20 h-20'>
                 <img
                   src={url}
-                  alt='listing image'
-                  className='w-20 h-20 object-contain rounded-lg'//rounded large img size
+                  alt='Uploaded'
+                  className='w-full h-full rounded-lg border border-gray-400'
                 />
-
                 <button
                   type='button'
-                  //we have made handleRemoveImage as callback function. So it will only be called after clicking delete button
                   onClick={() => handleRemoveImage(index)}
-                  className='p-3 text-green-700 rounded-lg uppercase hover:opacity-40 hover:text-orange-600'
+                  className='absolute top-0 right-0 text-red-500 p-1 bg-gray-50 rounded-full'
                 >
-                  Delete
+                  X
                 </button>
               </div>
             ))}
+          </div>
+          {imageUploadError && (
+            <p className='text-red-700 text-sm'>{imageUploadError}</p>
+          )}
           <button
-          //if loading is true of uploading is true create Listing Button should be disabled
             disabled={loading || uploading}
             className='p-3 bg-red-600 text-white rounded-lg uppercase hover:opacity-90 disabled:opacity-60'
           >

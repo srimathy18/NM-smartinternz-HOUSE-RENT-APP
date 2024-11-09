@@ -36,18 +36,15 @@ export default function CreateListing() {
   useEffect(() => {
     const fetchListing = async () => {
       const listingId = params.listingId;
-      //each time when we go to update-listing page we will be having listingId. So, based upon that listingId we will be fetching information. 
       const res = await fetch(`/api/listing/get/${listingId}`);
       const data = await res.json();
       if (data.success === false) {
         console.log(data.message);
         return;
       }
-      //updating the form of listing
       setFormData(data);
     };
 
-    //calling async function in the useEffect()
     fetchListing();
   }, []);
 
@@ -142,7 +139,6 @@ export default function CreateListing() {
     }
   };
 
-  //Here we are updating the listing
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -167,13 +163,13 @@ export default function CreateListing() {
       if (data.success === false) {
         setError(data.message);
       }
-      //we are navigating to listing/ to that id
       navigate(`/listing/${data._id}`);
     } catch (error) {
       setError(error.message);
       setLoading(false);
     }
   };
+
   return (
     <main className='p-3 max-w-4xl mx-auto'>
       <h1 className='text-3xl font-semibold text-center my-7'>
@@ -313,105 +309,91 @@ export default function CreateListing() {
                 onChange={handleChange}
                 value={formData.kitchens}
               />
-              <p>kitchens</p>
+              <p>Kitchens</p>
             </div>
-            <div className='flex items-center gap-2'>
+          </div>
+          <div className='flex flex-wrap gap-6'>
+            <div className='flex gap-2'>
+              <p>Regular price</p>
               <input
                 type='number'
                 id='regularPrice'
-                min='50'
-                max='10000000'
+                className='w-full p-3 border border-gray-300 rounded-lg'
+                min='1'
                 required
-                className='p-3 border border-gray-300 rounded-lg'
                 onChange={handleChange}
                 value={formData.regularPrice}
               />
-              <div className='flex flex-col items-center'>
-                <p>Regular price</p>
-                {formData.type === 'rent' && (
-                  <span className='text-xs'>($ / month)</span>
-                )}
-              </div>
             </div>
             {formData.offer && (
-              <div className='flex items-center gap-2'>
+              <div className='flex gap-2'>
+                <p>Discount price</p>
                 <input
                   type='number'
                   id='discountPrice'
-                  min='0'
-                  max='10000000'
+                  min='1'
                   required
-                  className='p-3 border border-gray-300 rounded-lg'
+                  className='w-full p-3 border border-gray-300 rounded-lg'
                   onChange={handleChange}
                   value={formData.discountPrice}
                 />
-                <div className='flex flex-col items-center'>
-                  <p>Discounted price</p>
-                  {formData.type === 'rent' && (
-                    <span className='text-xs'>($ / month)</span>
-                  )}
-                </div>
               </div>
             )}
           </div>
         </div>
-        <div className='flex flex-col flex-1 gap-4'>
-          <p className='font-semibold'>
-            Images:
-            <span className='font-normal text-gray-600 ml-2'>
-              The first image will be the cover (max 6)
-            </span>
-          </p>
-          <div className='flex gap-4'>
-            <input
-              onChange={(e) => setFiles(e.target.files)}
-              className='p-3 border border-gray-300 rounded w-full'
-              type='file'
-              id='images'
-              accept='image/*'
-              multiple
-            />
-            <button
-              type='button'
-              disabled={uploading}
-              onClick={handleImageSubmit}
-              className='p-3 text-green-700 border border-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80'
-            >
-              {uploading ? 'Uploading...' : 'Upload'}
-            </button>
-          </div>
-          <p className='text-red-700 text-sm'>
-            {imageUploadError && imageUploadError}
-          </p>
-          {formData.imageUrls.length > 0 &&
-            formData.imageUrls.map((url, index) => (
-              <div
-                key={url}
-                className='flex justify-between p-3 border items-center'
+        <div className='flex-1'>
+          <div>
+            <h2 className='font-semibold text-xl'>Images</h2>
+            <div className='flex flex-wrap gap-4'>
+              {formData.imageUrls.length > 0 &&
+                formData.imageUrls.map((url, index) => (
+                  <div key={index} className='relative'>
+                    <img
+                      src={url}
+                      alt=''
+                      className='h-36 w-36 object-cover rounded-xl'
+                    />
+                    <button
+                      type='button'
+                      onClick={() => handleRemoveImage(index)}
+                      className='absolute top-1 right-1 bg-red-500 p-2 text-white rounded-full'
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+            </div>
+            {imageUploadError && (
+              <p className='text-red-500'>{imageUploadError}</p>
+            )}
+            <div>
+              <input
+                type='file'
+                onChange={(e) => setFiles(e.target.files)}
+                multiple
+              />
+              <button
+                type='button'
+                className='bg-blue-500 text-white p-2 rounded-lg mt-2'
+                onClick={handleImageSubmit}
+                disabled={uploading}
               >
-                <img
-                  src={url}
-                  alt='listing image'
-                  className='w-20 h-20 object-contain rounded-lg'
-                />
-                <button
-                  type='button'
-                  onClick={() => handleRemoveImage(index)}
-                  className='p-3 text-red-700 rounded-lg uppercase hover:opacity-75'
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
-          <button
-            disabled={loading || uploading}
-            className='p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
-          >
-            {loading ? 'Updating...' : 'Update listing'}
-          </button>
-          {error && <p className='text-red-700 text-sm'>{error}</p>}
+                {uploading ? 'Uploading...' : 'Upload Images'}
+              </button>
+            </div>
+          </div>
         </div>
       </form>
+      {error && <p className='text-red-500'>{error}</p>}
+      <div className='text-center'>
+        <button
+          type='submit'
+          className='bg-green-500 text-white p-3 rounded-lg mt-6'
+          disabled={loading}
+        >
+          {loading ? 'Updating...' : 'Update Listing'}
+        </button>
+      </div>
     </main>
   );
 }

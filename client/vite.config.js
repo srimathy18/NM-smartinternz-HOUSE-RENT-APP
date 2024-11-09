@@ -1,7 +1,8 @@
+// vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-import path from "path"
-// https://vitejs.dev/config/
+import path from "path";
+
 export default defineConfig({
   resolve: {
     alias: {
@@ -16,6 +17,8 @@ export default defineConfig({
       },
     },
   },
-
   plugins: [react()],
+  optimizeDeps: {
+    include: ['@fortawesome/react-fontawesome', '@fortawesome/free-solid-svg-icons'],
+  },
 });

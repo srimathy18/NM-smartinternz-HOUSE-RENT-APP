@@ -3,14 +3,14 @@ import { errorHandler } from '../utils/error.js';
 
 export const createListing = async (req, res, next) => {
   try {
-    const listing = await Listing.create(req.body);//req.body we are getting from browser.
-    return res.status(201).json(listing);//listing is created
-  } catch (error) {//middleware will hanle the error
+    const listing = await Listing.create(req.body);
+    return res.status(201).json(listing);
+  } catch (error) {
     next(error);
   }
 };
 
-//for deleting listing from show listings button for specific id
+// for deleting listing from show listings button for specific id
 export const deleteListing = async (req, res, next) => {
   const listing = await Listing.findById(req.params.id);
 
@@ -18,11 +18,11 @@ export const deleteListing = async (req, res, next) => {
     return next(errorHandler(404, 'Listing not found!'));
   }
 
-  if (req.user.id !== listing.userRef) {//userRef is already string so we dont need to convert it to string
+  if (req.user.id !== listing.userRef) {
     return next(errorHandler(401, 'You can only delete your own listings!'));
   }
 
-  try {//if everything is OK
+  try {
     await Listing.findByIdAndDelete(req.params.id);
     res.status(200).json('Listing has been deleted!');
   } catch (error) {
@@ -30,9 +30,8 @@ export const deleteListing = async (req, res, next) => {
   }
 };
 
-//editing the listing under show listing
+// editing the listing under show listing
 export const updateListing = async (req, res, next) => {
-  //
   const listing = await Listing.findById(req.params.id);
   if (!listing) {
     return next(errorHandler(404, 'Listing not found!'));
@@ -42,11 +41,10 @@ export const updateListing = async (req, res, next) => {
   }
 
   try {
-    //findByIdAndUpdate is a method used to find by id and then update that
     const updatedListing = await Listing.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }//for getting new updated listing
+      { new: true }
     );
     res.status(200).json(updatedListing);
   } catch (error) {
@@ -54,8 +52,7 @@ export const updateListing = async (req, res, next) => {
   }
 };
 
-
-//for getting information of specific listing
+// for getting information of specific listing
 export const getListing = async (req, res, next) => {
   try {
     const listing = await Listing.findById(req.params.id);
@@ -68,30 +65,28 @@ export const getListing = async (req, res, next) => {
   }
 };
 
+// Approving the listing (for owner only)
 export const approveList = async function (req, res, next) {
-  if (req.user && req.user.userType !== "owner"){
+  if (req.user && req.user.userType !== "owner") {
     return next(errorHandler(401, "Unauthorized"));
   }
   try {
-    const list = await Listing.findByIdAndUpdate(req.query.id, {status: "approved"})
-    return res.stastus(200).json(list)
+    const list = await Listing.findByIdAndUpdate(req.query.id, { status: "approved" });
+    return res.status(200).json(list);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 export const getListings = async (req, res, next) => {
   try {
-    //if there is a limit then parse it to integer. Otherwise use 9 as limit
     const limit = parseInt(req.query.limit) || 9;
     const startIndex = parseInt(req.query.startIndex) || 0;
     let offer = req.query.offer;
-    console.log("Query ", req.query)
+    console.log("Query ", req.query);
 
-    //if offer is not clicked then search for listings which has both offer and not
     if (offer === undefined || offer === 'false') {
-      //$in is for searching inside database
-      offer = { $in: [false, true] };//offer can be true or false 
+      offer = { $in: [false, true] };
     }
 
     let furnished = req.query.furnished;
@@ -114,32 +109,28 @@ export const getListings = async (req, res, next) => {
 
     let status = req.query.status;
 
-    if (status !== undefined){
-      if (status === "created") status = {$in: ["created"]}
-      if (status === "approved") status = {$in: ["approved"]}
-      if (status === "rejected") status = {$in: ["rejected"]}
+    if (status !== undefined) {
+      if (status === "created") status = { $in: ["created"] };
+      if (status === "approved") status = { $in: ["approved"] };
+      if (status === "rejected") status = { $in: ["rejected"] };
     }
 
     const searchTerm = req.query.searchTerm || '';
-
-    //we wanted to sort by latest
     const sort = req.query.sort || 'createdAt';
-
     const order = req.query.order || 'desc';
+
     console.log({
-      //regex is builtin search functionality for mongoDB
-      //we can search for part of the word using regex
-      name: { $regex: searchTerm, $options: 'i' },//'i' means search will not depend on lowercase or uppercase.
+      name: { $regex: searchTerm, $options: 'i' },
       offer,
       furnished,
       parking,
       type,
       status
-    })
+    });
+
+    // Get the listings based on filters and sort options
     const listings = await Listing.find({
-      //regex is builtin search functionality for mongoDB
-      //we can search for part of the word using regex
-      name: { $regex: searchTerm, $options: 'i' },//'i' means search will not depend on lowercase or uppercase.
+      name: { $regex: searchTerm, $options: 'i' },
       offer,
       furnished,
       parking,
@@ -148,9 +139,16 @@ export const getListings = async (req, res, next) => {
     })
       .sort({ [sort]: order })
       .limit(limit)
-      .skip(startIndex);
-console.log(listings)
-    return res.status(200).json(listings);
+      .skip(startIndex)
+      .lean(); // Converts the documents to plain JavaScript objects
+
+    // Map over listings to add ₹ symbol to price field
+    const listingsWithRupee = listings.map(listing => ({
+      ...listing,
+      price: `₹${listing.price}` // Format price with ₹ symbol
+    }));
+
+    return res.status(200).json(listingsWithRupee);
   } catch (error) {
     next(error);
   }

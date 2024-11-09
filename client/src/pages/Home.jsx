@@ -12,7 +12,7 @@ export default function Home() {
   const [saleListings, setSaleListings] = useState([]);
   const [rentListings, setRentListings] = useState([]);
   SwiperCore.use([Navigation]);
-  console.log(offerListings);
+
   useEffect(() => {
     const fetchOfferListings = async () => {
       try {
@@ -24,6 +24,7 @@ export default function Home() {
         console.log(error);
       }
     };
+
     const fetchRentListings = async () => {
       try {
         const res = await fetch('/api/listing/get?type=rent&limit=4&status=approved');
@@ -41,11 +42,13 @@ export default function Home() {
         const data = await res.json();
         setSaleListings(data);
       } catch (error) {
-        log(error);
+        console.log(error);
       }
     };
+
     fetchOfferListings();
   }, []);
+
   return (
     <div className='h-full'>
       {/* top */}
@@ -67,7 +70,7 @@ export default function Home() {
           Let's get started...
         </Link>
       </div>
-  
+
       {/* swiper */}
       <Swiper navigation>
         {offerListings &&
@@ -84,7 +87,7 @@ export default function Home() {
             </SwiperSlide>
           ))}
       </Swiper>
-  
+
       {/* listing results for offer, sale and rent */}
       <div className='max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10 text-center'>
         {offerListings && offerListings.length > 0 && (
@@ -135,7 +138,4 @@ export default function Home() {
       </div>
     </div>
   );
-  
-  
-
 }

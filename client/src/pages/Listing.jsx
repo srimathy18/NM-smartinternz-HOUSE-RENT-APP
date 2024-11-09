@@ -1,3 +1,6 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRupeeSign } from '@fortawesome/free-solid-svg-icons';
+
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -9,7 +12,6 @@ import {
   FaBath,
   FaBed,
   FaChair,
-  FaMapMarkedAlt,
   FaMapMarkerAlt,
   FaParking,
   FaShare,
@@ -30,7 +32,6 @@ export default function Listing() {
     const fetchListing = async () => {
       try {
         setLoading(true);
-        // backtick is used for using variable inside fetch method
         const res = await fetch(`/api/listing/get/${params.listingId}`);
         const data = await res.json();
         if (data.success === false) {
@@ -47,7 +48,6 @@ export default function Listing() {
       }
     };
     fetchListing();
-    //run this only when params.listingId changes
   }, [params.listingId]);
 
   return (
@@ -56,7 +56,6 @@ export default function Listing() {
       {error && (
         <p className='text-center my-7 text-2xl'>Something went wrong!</p>
       )}
-      {/* if there is listing we are showing that */}
       {listing && !loading && !error && (
         <div>
           <Swiper navigation>
@@ -91,10 +90,10 @@ export default function Listing() {
           )}
           <div className='flex flex-col max-w-4xl mx-auto p-3 my-7 gap-4'>
             <p className='text-2xl font-semibold'>
-              {listing.name} - ${' '}
+              {listing.name} - <FontAwesomeIcon icon={faRupeeSign} />{' '}
               {listing.offer
-                ? listing.discountPrice.toLocaleString('en-US')
-                : listing.regularPrice.toLocaleString('en-US')}
+                ? listing.discountPrice.toLocaleString('en-IN')
+                : listing.regularPrice.toLocaleString('en-IN')}
               {listing.type === 'rent' && ' / month'}
             </p>
             <p className='flex items-center mt-6 gap-2 text-slate-600  text-sm'>
@@ -107,7 +106,9 @@ export default function Listing() {
               </p>
               {listing.offer && (
                 <p className='bg-green-900 w-full max-w-[200px] text-white text-center p-1 rounded-md'>
-                  ${+listing.regularPrice - +listing.discountPrice} OFF
+                  <FontAwesomeIcon icon={faRupeeSign} />{' '}
+                  {(+listing.regularPrice - +listing.discountPrice).toLocaleString('en-IN')}{' '}
+                  OFF
                 </p>
               )}
             </div>
@@ -129,13 +130,13 @@ export default function Listing() {
                   : `${listing.bathrooms} bath `}
               </li>
               <li className='flex items-center gap-1 whitespace-nowrap '>
-                <FaBath className='text-lg' />
+                <FaMapMarkerAlt className='text-lg' />
                 {listing.halls > 1
                   ? `${listing.halls} halls `
                   : `${listing.halls} hall `}
               </li>
               <li className='flex items-center gap-1 whitespace-nowrap '>
-                <FaBath className='text-lg' />
+                <FaMapMarkerAlt className='text-lg' />
                 {listing.kitchens > 1
                   ? `${listing.kitchens} kitchens `
                   : `${listing.kitchens} kitchen `}
