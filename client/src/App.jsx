@@ -12,27 +12,31 @@ import Listing from './pages/Listing';
 import Search from './pages/Search';
 import ReviewForm from './pages/ReviewForm';
 import OwnerRoute from './components/OwnerRoute';
+import Footer from './components/Footer';
 
 export default function App() {
   return (
-    <>
+    <div className='flex flex-col justify-between min-h-screen'>
       <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/sign-up" element={<SignUp />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/listing/:listingId" element={<Listing />} />
-        <Route element={<PrivateRoute />}>
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/update-listing/:listingId" element={<UpdateListing />} />
-          <Route element={<OwnerRoute />}>
-            <Route path="/create-listing" element={<CreateListing />} />
+      <div className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/listing/:listingId" element={<Listing />} />
+          <Route element={<PrivateRoute />}>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/update-listing/:listingId" element={<UpdateListing />} />
+            <Route element={<OwnerRoute />}>
+              <Route path="/create-listing" element={<CreateListing />} />
+            </Route>
           </Route>
-        </Route>
-        <Route path="/review" element={<ReviewForm />} />
-      </Routes>
-    </>
+          <Route path="/review" element={<ReviewForm />} />
+        </Routes>
+      </div>
+      <Footer />
+    </div>
   );
 }

@@ -86,6 +86,7 @@ export const getListings = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 9;
     const startIndex = parseInt(req.query.startIndex) || 0;
     let offer = req.query.offer;
+    console.log("Query ", req.query)
 
     //if offer is not clicked then search for listings which has both offer and not
     if (offer === undefined || offer === 'false') {
@@ -113,7 +114,7 @@ export const getListings = async (req, res, next) => {
 
     let status = req.query.status;
 
-    if (status === undefined){
+    if (status !== undefined){
       if (status === "created") status = {$in: ["created"]}
       if (status === "approved") status = {$in: ["approved"]}
       if (status === "rejected") status = {$in: ["rejected"]}
@@ -125,7 +126,16 @@ export const getListings = async (req, res, next) => {
     const sort = req.query.sort || 'createdAt';
 
     const order = req.query.order || 'desc';
-
+    console.log({
+      //regex is builtin search functionality for mongoDB
+      //we can search for part of the word using regex
+      name: { $regex: searchTerm, $options: 'i' },//'i' means search will not depend on lowercase or uppercase.
+      offer,
+      furnished,
+      parking,
+      type,
+      status
+    })
     const listings = await Listing.find({
       //regex is builtin search functionality for mongoDB
       //we can search for part of the word using regex
@@ -139,7 +149,7 @@ export const getListings = async (req, res, next) => {
       .sort({ [sort]: order })
       .limit(limit)
       .skip(startIndex);
-
+console.log(listings)
     return res.status(200).json(listings);
   } catch (error) {
     next(error);

@@ -31,13 +31,13 @@ export default function Header() {
     }
   }, [location.search]);
   return (
-    <header className='bg-pink-400 shadow-md'>
+    <header className='bg-blue-500 shadow-md'>
       <div className='flex justify-between items-center max-w-6xl mx-auto p-3'>
         {/* / is for home route */}
         <Link to='/'>
           <h1 className='font-bold text-sm sm:text-xl flex flex-wrap'>
-            <span className='text-blue-300'>Rent</span>
-            <span className='text-green-300'>Ease</span>
+            <span className='text-blue-300'>Nest</span>
+            <span className='text-green-300'>ify</span>
           </h1>
         </Link>
         <form

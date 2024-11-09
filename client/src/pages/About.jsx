@@ -3,12 +3,20 @@ import React from 'react'
 export default function About() {
   return (
       <div className='py-20 px-4 max-w-6xl mx-auto'>
-      <h1 className='text-3xl font-bold mb-4 text-slate-800'>About Rent Ease</h1>
-      <p className='mb-4 text-slate-700'>Rent Ease stands as a premier land and buildings agency renowned for its expertise in assisting clients with property acquisitions, sales, and rentals in the most sought-after neighborhoods. Our cadre of seasoned agents is wholeheartedly committed to delivering unparalleled service and ensuring a seamless experience in the realms of property transactions.</p>
+      <h1 className='text-3xl font-bold mb-4 text-slate-800'>About Nestify</h1>
+      <p className='mb-4 text-slate-700'>Nestify is a leading rental platform, dedicated to helping clients find, rent, 
+        and manage properties in the most desirable neighborhoods. Our team of experienced professionals is committed to providing exceptional service,
+         making the rental process smooth and stress-free.</p>
       <p className='mb-4 text-slate-700'>
-      At the heart of our ethos lies a commitment to empower our clients in reaching their land and buildings objectives through the provision of astute counsel, tailored support, and an intimate grasp of the regional property landscape. Whether your intentions involve property acquisition, divestiture, or rental, our unwavering dedication ensures your journey is guided at every juncture.
+      Our mission is to empower clients to find their ideal homes by offering expert advice, personalized support, and in-depth knowledge of the local rental market.
+       Whether you're searching for a new rental or looking to list a property, 
+      our team is here to guide you every step of the way.
       </p>
-      <p className='mb-4 text-slate-700'>Our ensemble of agents boasts a trove of wisdom and expertise within the realm of land and buildings, underpinned by an unwavering commitment to bestow the pinnacle of service upon our esteemed clients. We hold steadfast to the belief that property transactions, whether in the capacity of purchase or sale, should be a journey rife with excitement and fulfillment. It is our steadfast dedication to manifesting this vision into a reality for each and every one of our cherished clients.</p>
+      <p className='mb-4 text-slate-700'>At Nestify, we believe that finding a home should be an exciting and rewarding experience.
+         With our expertise and unwavering commitment to customer satisfaction,
+         we strive to make your rental journey enjoyable and fulfilling.
+
+</p>
     </div>
   )
 }
