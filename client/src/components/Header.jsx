@@ -31,7 +31,7 @@ export default function Header() {
     }
   }, [location.search]);
   return (
-    <header className='bg-blue-500 shadow-md'>
+    <header className='bg-blue-500 shadow-md fixed top-0 left-0 w-full z-50'>
       <div className='flex justify-between items-center max-w-6xl mx-auto p-3'>
         {/* / is for home route */}
         <Link to='/'>
@@ -47,7 +47,6 @@ export default function Header() {
           <input
             type='text'
             placeholder='Search...'
-            //w-24 for mobile sizes and for bigger screen sm:w-64
             className='bg-transparent focus:outline-none w-24 sm:w-64'
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -69,15 +68,14 @@ export default function Header() {
             </li>
           </Link>
           <Link to='/profile'>
-            {currentUser ? (//if user is signed in it will go to /ptofile page
+            {currentUser ? (
               <img
-              //object-cover to keep aspect ratio of img
                 className='rounded-full h-7 w-7 object-cover'
                 src={currentUser.avatar}
                 alt='profile'
               />
-            ) : (//otherwise it will go to sign-in
-              <li className=' text-orange-200 hover:underline'> Sign in</li>
+            ) : (
+              <li className='text-orange-200 hover:underline'>Sign in</li>
             )}
           </Link>
         </ul>
