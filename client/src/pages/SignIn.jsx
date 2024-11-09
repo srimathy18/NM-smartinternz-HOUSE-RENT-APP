@@ -11,17 +11,17 @@ import OAuth from '../components/OAuth';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
+  //instead of having 2 hooks error & loading . Using useSelector hook we can import these two.
+  //And that is coming from global state & state name called user inside userSlice
   const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.id]: e.target.value,
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -40,47 +40,45 @@ export default function SignIn() {
         return;
       }
       dispatch(signInSuccess(data));
-      navigate('/');
+      navigate('/');//we are navigating to homepage when sign-in is completed.
     } catch (error) {
       dispatch(signInFailure(error.message));
     }
   };
-
   return (
-    <div className='w-full max-w-xs mx-auto bg-[#FAFAFA] border border-[#E0E0E0] shadow-lg p-6 rounded-lg'>
-      <h1 className='text-center text-3xl font-semibold mb-6 text-[#2C3E50] font-dancing-script'>
-        Hello 👋, Sign in please
-      </h1>
+    <div className='p-3 max-w-lg mx-auto'>
+      <h1 className='text-3xl text-center font-semibold my-7'>Sign In</h1>
       <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
         <input
           type='email'
-          placeholder='Enter Your Email'
-          className='border border-[#DADADA] bg-[#F9F9F9] text-base p-3 rounded focus:outline-none focus:border-[#B3B3B3] focus:ring-1 focus:ring-[#A0AEC0]'
+          placeholder='email'
+          className='border p-3 rounded-lg'
           id='email'
           onChange={handleChange}
         />
         <input
           type='password'
-          placeholder='Enter Your Password'
-          className='border border-[#DADADA] bg-[#F9F9F9] text-base p-3 rounded focus:outline-none focus:border-[#B3B3B3] focus:ring-1 focus:ring-[#A0AEC0]'
+          placeholder='password'
+          className='border p-3 rounded-lg'
           id='password'
           onChange={handleChange}
         />
+
         <button
           disabled={loading}
-          className='bg-[#3B82F6] text-white text-base py-2 rounded hover:bg-[#F3F4F6] focus:outline-none transition duration-200 disabled:opacity-60'
+          className='bg-orange-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
         >
           {loading ? 'Loading...' : 'Sign In'}
         </button>
-        <OAuth />
+        <OAuth/>
       </form>
-      <div className='flex justify-center items-center gap-1 mt-6'>
-        <p className='text-[#6B7280] text-sm'>Not a member yet?</p>
+      <div className='flex gap-2 mt-5'>
+        <p>Dont have an account?</p>
         <Link to={'/sign-up'}>
-          <span className='text-[#4A90E2] text-sm font-medium hover:underline'>Sign up</span>
+          <span className='text-blue-700'>Sign up</span>
         </Link>
       </div>
-      {error && <p className='text-red-500 text-sm text-center mt-4'>{error}</p>}
+      {error && <p className='text-red-500 mt-5'>{error}</p>}
     </div>
   );
 }

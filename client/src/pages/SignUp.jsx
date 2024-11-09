@@ -16,6 +16,7 @@ export default function SignUp() {
   const navigate = useNavigate();
 
   const validatePassword = (password) => {
+    // Password must be 8 characters long
     if (password.length < 8) {
       setError((prevErrors) => ({
         ...prevErrors,
@@ -24,6 +25,7 @@ export default function SignUp() {
       return;
     }
 
+    // Password should contain at least 2 special characters and 1 uppercase letter
     const specialCharCount = password.replace(/[^!@#$%^&*()_+]/g, '').length;
     const uppercaseCount = password.replace(/[^A-Z]/g, '').length;
 
@@ -32,7 +34,7 @@ export default function SignUp() {
         ...prevErrors,
         password: 'Password should contain 2 special characters and 1 uppercase letter',
       }));
-    } else {
+    } else if(specialCharCount >= 2 || uppercaseCount > 1 && password.length){
       setError((prevErrors) => ({
         ...prevErrors,
         password: '',
@@ -65,94 +67,108 @@ export default function SignUp() {
 
     if (name === 'email') {
       validateEmail(value);
-    }
+    } 
     if (name === 'password') {
       validatePassword(value);
     }
   };
 
   const handleSubmit = async (e) => {
+    //prevent the refreshing of the page
     e.preventDefault();
 
-    if (!formData.email || !formData.password || !formData.username) {
+    //if user has not entered username or password 
+    if (!formData.email) {
       setError({
-        email: 'Username, Email, and Password are required to sign up',
-        password: 'Username, Email, and Password are required to sign up',
+        email: 'Username,Email and password are required to sign up',
+      });
+      return;
+    }
+    else if(!formData.password){
+      setError({
+        password: 'Username,Email and password are required to sign up',
       });
       return;
     }
 
     try {
       setLoading(true);
+
+      //we have made the proxy of /api inside vite.config.js which will add localhost:3000 everytime it sees the /api in the route
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        //stringify is used for securely sending the data
         body: JSON.stringify(formData),
       });
+
+      //change and convert the response to json
       const data = await res.json();
 
       if (data.success === false) {
         setLoading(false);
-        setError({ email: data.message, password: data.message });
+        setError({ email: data.message });
+        setError({ password: data.message });
         return;
       }
 
       setLoading(false);
       setError({ email: '', password: '' });
-      navigate('/sign-in');
+      navigate('/sign-in');//if everything is fine we wanted to navigate to sign-in page
     } catch (error) {
       setLoading(false);
-      setError({ email: 'All fields are required', password: '' });
+      setError({ email: 'All fields are Required', password: '' });
     }
   };
 
   return (
-    <div className='w-full max-w-xs mx-auto bg-[#FAFAFA] border border-[#E0E0E0] shadow-lg p-6 rounded-lg'>
-      <h1 className='text-center text-3xl font-semibold mb-6 text-[#2C3E50] font-dancing-script'>
-        Sign Up
-      </h1>
+    <div className='p-3 max-w-lg mx-auto'>
+      <h1 className='text-3xl text-center font-semibold my-7'>Sign Up</h1>
       <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
         <input
           type='text'
-          placeholder='Enter Your Username'
-          className='border border-[#DADADA] bg-[#F9F9F9] text-base p-3 rounded focus:outline-none focus:border-[#B3B3B3] focus:ring-1 focus:ring-[#A0AEC0]'
+          placeholder='username'
+          className='border p-3 rounded-lg'
           name='username'
           onChange={handleChange}
         />
         <input
           type='email'
-          placeholder='Enter Your Email'
-          className='border border-[#DADADA] bg-[#F9F9F9] text-base p-3 rounded focus:outline-none focus:border-[#B3B3B3] focus:ring-1 focus:ring-[#A0AEC0]'
+          placeholder='email'
+          className='border p-3 rounded-lg'
           name='email'
-          value={formData.email}
+          value={formData && formData.email}
           onChange={handleChange}
         />
+
         <input
           type='password'
-          placeholder='Enter Your Password'
-          className='border border-[#DADADA] bg-[#F9F9F9] text-base p-3 rounded focus:outline-none focus:border-[#B3B3B3] focus:ring-1 focus:ring-[#A0AEC0]'
+          placeholder='password'
+          className='border p-3 rounded-lg'
           name='password'
-          value={formData.password}
+          value={formData && formData.password}
           onChange={handleChange}
         />
+
         <button
+        //Button will get disabled when loading is there
           disabled={loading}
-          className='bg-[#3B82F6] text-white text-base py-2 rounded hover:bg-[#357ABD] focus:outline-none transition duration-200 disabled:opacity-60'
+          className='bg-orange-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
         >
           {loading ? 'Loading...' : 'Sign Up'}
         </button>
         <OAuth />
       </form>
-      <div className='flex justify-center items-center gap-1 mt-6'>
-        <p className='text-[#6B7280] text-sm'>Already have an account?</p>
+      <div className='flex gap-2 mt-5'>
+        <p>Already have an account?</p>
         <Link to='/sign-in'>
-          <span className='text-[#4A90E2] text-sm font-medium hover:underline'>Sign in</span>
+          <span className='text-blue-700'>Sign in</span>
         </Link>
       </div>
-      {error.email && <p className='text-red-500 text-sm text-center mt-4'>{error.email}</p>}
-      {error.password && <p className='text-red-500 text-sm text-center mt-4'>{error.password}</p>}
+      {error.email && <p className='text-red-500 mt-5'>{error.email}</p>}
+      {error.password && <p className='text-red-500 mt-5'>{error.password}</p>}
     </div>
   );
 }
