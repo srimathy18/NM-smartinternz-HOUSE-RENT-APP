@@ -113,6 +113,7 @@ export default function CreateListing() {
       setFormData({
         ...formData,
         type: e.target.id,
+        
       });
     }
 
